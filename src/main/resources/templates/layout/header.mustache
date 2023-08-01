@@ -24,13 +24,7 @@
         </button>
         <div class="collapse navbar-collapse" id="collapsibleNavbar">
           <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link" href="/joinForm">회원가입</a>
-              {{!  http://127.0.0.1/joinForm인데 앞은 자기 자신이니까.joinForm만 적어도 되는것 }}
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/loginForm">로그인</a>
-            </li>
+          {{#sessionUser}}
             <li class="nav-item">
               <a class="nav-link" href="/board/saveForm">글쓰기</a>
             </li>
@@ -40,6 +34,18 @@
             <li class="nav-item">
               <a class="nav-link" href="/logout">로그아웃</a>
             </li>
+          {{/sessionUser}}
+          {{^sessionUser}}
+            <li class="nav-item">
+              <a class="nav-link" href="/joinForm">회원가입</a>
+              {{!  http://127.0.0.1/joinForm인데 앞은 자기 자신이니까.joinForm만 적어도 되는것 }}
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/loginForm">로그인</a>
+            </li>
+          {{/sessionUser}}
+
+  
           </ul>
         </div>
       </div>

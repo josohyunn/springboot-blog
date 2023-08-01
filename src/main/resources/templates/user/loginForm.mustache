@@ -4,7 +4,7 @@
   <!--요청을 하면 localhost:8080/login POST로 요청됨
     username=사용자입력값&password=사용자값-->
   <div class="card">
-    <div class="card-header"><b>로그인</b></div>
+    <div class="card-header"><b>로그인을 해주세요</b></div>
     <div class="card-body">
       <form
         action="/login"
@@ -17,6 +17,8 @@
             class="form-control"
             placeholder="Enter username"
             name="username"
+            required
+            maxlength="20"
           />
         </div>
         <div class="mb-3">
@@ -25,6 +27,8 @@
             class="form-control"
             placeholder="Enter password"
             name="password"
+            required
+            maxlength="20"
           />
         </div>
         <button type="submit" class="btn btn-primary">로그인</button>
