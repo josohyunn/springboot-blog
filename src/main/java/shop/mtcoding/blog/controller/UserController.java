@@ -51,10 +51,10 @@ public class UserController {
             // 핵심 기능
             User user = userRepository.findByUsernameAndPassword(loginDTO);
             session.setAttribute("sessionUser", user);
-            return "redirect:/";
+            return "redirect:/"; // 로그인 된 페이지
         } catch (Exception e) {
 
-            return "redirect:/exLogin";
+            return "redirect:/exLogin"; // 아이디 또는 비밀번호 틀렸을 시
         }
     }
 
@@ -77,11 +77,11 @@ public class UserController {
 
         try {
             userRepository.save(joinDTO); // 핵심 기능
+            return "redirect:/loginForm";
         } catch (Exception e) {
             return "redirect:/50x";
         }
 
-        return "redirect:/loginForm";
     }
 
     // ==========================================================
