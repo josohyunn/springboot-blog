@@ -4,10 +4,7 @@
   <!-- 수정삭제버튼 -->
   {{#pageOwner}}
   <div class="d-flex justify-content-end">
-    <a
-      class="btn btn-warning me-1"
-      href="/board/{{board.id}}/updateForm"
-    >
+    <a class="btn btn-warning me-1" href="/board/{{ board.id }}/updateForm">
       수정
     </a>
     <form action="/board/{{ board.id }}/delete" method="post">
@@ -23,7 +20,7 @@
       <b>{{ title }}</b>
     </h2>
     <hr />
-    <div class="m-4 p-2">{{content}}</div>
+    <div class="m-4 p-2">{{ content }}</div>
   </div>
   {{/board}}
 
@@ -31,7 +28,12 @@
   <div class="card mt-3">
     <!-- 댓글등록 -->
     <div class="card-body">
-      <form action="/reply/save" method="post">
+      <form
+        action="/reply/save"
+        method="post"
+        enctype="application/x-www-form-urlencoded"
+      >
+        <input type="hidden" name="boardId" value="{{ board.id }}" />
         <textarea class="form-control" rows="2" name="comment"></textarea>
         <div class="d-flex justify-content-end">
           <button type="submit" class="btn btn-outline-primary mt-1">

@@ -4,9 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +29,18 @@ public class UserController {
     @Autowired
     private HttpSession session; // request는 가방, session은 서랍
 
-    @ResponseBody
+    // localhost:8080/check?username=ssar
+    @GetMapping("/check")
+    public ResponseEntity<String> check(String username) {
+
+        User user = userRepository.findByUsername(username);
+        if (user != null) {
+            return new ResponseEntity<String>("유저 네임이 중복되었습니다.", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<String>("유저네임을 사용할 수 있습니다.", HttpStatus.OK);
+    }
+
+    @ResponseBody // 데이터 리턴
     @GetMapping("/test/login")
     public String testLogin() {
         User sessionUser = (User) session.getAttribute("sessionUser");
@@ -75,12 +89,13 @@ public class UserController {
             return "redirect:/40x";
         }
 
-        try {
-            userRepository.save(joinDTO); // 핵심 기능
-            return "redirect:/loginForm";
-        } catch (Exception e) {
+        // DB에 해당 username이 있는지 체크해보기
+        User user = userRepository.findByUsername(joinDTO.getUsername());
+        if (user != null) {
             return "redirect:/50x";
         }
+        userRepository.save(joinDTO); // 핵심 기능
+        return "redirect:/loginForm";
 
     }
 
