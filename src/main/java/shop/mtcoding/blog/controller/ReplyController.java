@@ -4,9 +4,11 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import shop.mtcoding.blog.dto.ReplyWriteDTO;
+import shop.mtcoding.blog.model.Reply;
 import shop.mtcoding.blog.model.User;
 import shop.mtcoding.blog.repository.ReplyRepository;
 
@@ -14,10 +16,34 @@ import shop.mtcoding.blog.repository.ReplyRepository;
 public class ReplyController {
 
     @Autowired
-    private ReplyRepository replyRepository; // 만들기
+    private ReplyRepository replyRepository;
 
     @Autowired
     private HttpSession session;
+
+    @PostMapping("/reply/{id}/delete")
+    public String delete(@PathVariable Integer id, Integer boardId) { // detail.mustache에 boardId가 body데이터에 실려있다.
+        // 유효성 검사
+        if (boardId == null) {
+            return "redirect:/40x";
+        }
+
+        // 인증 체크
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "redirect:/loginForm";
+        }
+
+        // 권한 체크
+        Reply reply = replyRepository.findById(id);
+        if (reply.getUser().getId() != sessionUser.getId()) {
+            return "redirect:/40x"; // 403 : 권한없음. 나가
+        }
+
+        // 핵심 로직
+        replyRepository.deleteById(id);
+        return "redirect:/board/" + boardId;
+    }
 
     @PostMapping("/reply/save")
     public String save(ReplyWriteDTO replyWriteDTO) {
@@ -38,10 +64,7 @@ public class ReplyController {
 
         // 댓글 쓰기
         replyRepository.save(replyWriteDTO, sessionUser.getId());
-        System.out.println("테스트댓글 : " + replyWriteDTO.getComment());
-        System.out.println("테스트아이디 : " + sessionUser.getId());
-        System.out.println("테스트게시글 : " + replyWriteDTO.getBoardId());
 
-        return "rdeirect:/board/" + replyWriteDTO.getBoardId();
+        return "redirect:/board/" + replyWriteDTO.getBoardId();
     }
 }

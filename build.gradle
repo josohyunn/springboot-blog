@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'shop.mtcoding'
-version = '0.0.1-SNAPSHOT'
+version = '1.0'
 
 java {
 	sourceCompatibility = '11'
@@ -22,6 +22,13 @@ repositories {
 }
 
 dependencies {
+	// https://mvnrepository.com/artifact/ch.simas.qlrm/qlrm
+	implementation group: 'ch.simas.qlrm', name: 'qlrm', version: '1.7.1'
+// https://mvnrepository.com/artifact/org.mindrot/jbcrypt
+implementation 'org.mindrot:jbcrypt:0.4'
+
+
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-mustache'
 	implementation 'org.springframework.boot:spring-boot-starter-web'

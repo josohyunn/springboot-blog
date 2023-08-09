@@ -28,7 +28,7 @@ public class Reply {
     private String comment; // 댓글 내용
 
     @JoinColumn(name = "user_id")
-    @ManyToOne
+    @ManyToOne // jpa덕분에 직접 join안해도 자동으로 join해준다
     private User user; // FK user_id
 
     @ManyToOne
