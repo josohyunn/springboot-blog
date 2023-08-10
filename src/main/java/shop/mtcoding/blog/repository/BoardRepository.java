@@ -35,6 +35,14 @@ public class BoardRepository {
         return (int) count.intValue();
     }
 
+    public int count(String keyword) { // 오버로딩
+        // Entity(Board, User) 타입이 아니어도 기본자료형도 안된다.
+        Query query = em.createNativeQuery("select count(*) from board_tb where title like :keyword");
+        query.setParameter("keyword", "%" + keyword + "%");
+        BigInteger count = (BigInteger) query.getSingleResult();
+        return (int) count.intValue();
+    }
+
     public int count2() {
         // Entity(Board, User) 타입이 아니어도 기본자료형도 안된다.
         Query query = em.createNativeQuery("select * from board_tb", Integer.class);
@@ -47,6 +55,20 @@ public class BoardRepository {
         // order by 보다 limit이 제일 뒤에 와야된다.
         Query query = em.createNativeQuery("select * from board_tb order by id desc limit :page, :size", Board.class); // 페이징
                                                                                                                        // 쿼리
+        query.setParameter("page", page * SIZE);
+        query.setParameter("size", SIZE);
+        return query.getResultList();
+
+    }
+
+    // localhost:8080?page=0
+    public List<Board> findAll(int page, String keyword) { // 오버로딩
+        final int SIZE = 3;
+        // order by 보다 limit이 제일 뒤에 와야된다.
+        Query query = em.createNativeQuery(
+                "select * from board_tb where title like :keyword order by id desc limit :page, :size", Board.class); // 페이징
+        // 쿼리에서 "... like %:keyword% ..." 문법은 허용 안하기때문에 setParameter에서 값을 %넣어서 줘야한다.
+        query.setParameter("keyword", "%" + keyword + "%");
         query.setParameter("page", page * SIZE);
         query.setParameter("size", SIZE);
         return query.getResultList();

@@ -21,7 +21,7 @@ public class User {
 
     @Column(nullable = false, length = 20, unique = true)
     private String username;
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 60) // 해시된 값 길이
     private String password;
     @Column(nullable = false, length = 20)
     private String email;

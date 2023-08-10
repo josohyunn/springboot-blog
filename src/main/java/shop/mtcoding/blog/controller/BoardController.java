@@ -95,13 +95,30 @@ public class BoardController { // 요청할 때에는 항상 controller로
 
     @GetMapping({ "/", "/board" }) // 주소 두개 매핑
     // page = 0으로 초기화시켜줌
-    public String index(@RequestParam(defaultValue = "0") Integer page, HttpServletRequest request) {
+    public String index(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "") String keyword,
+            HttpServletRequest request) {
 
         // 1. 유효성 검사 x(post가 아니기때문에 받을게 없다)
         // 2. 인증검사 x(로그인 안해도 볼 수 있음)
 
-        List<Board> boardList = boardRepository.findAll(page); // page = 1
-        int totalCount = boardRepository.count(); // totalCount = 5
+        // System.out.println("테스트 : keyword : " + keyword);
+        // System.out.println("테스트 : keyword length : " + keyword.length());
+        // System.out.println("테스트 : keyword isEmpty: " + keyword.isEmpty());
+        // System.out.println("테스트 : keyword isBlank: " + keyword.isBlank());
+
+        List<Board> boardList = null;
+        int totalCount = 0;
+        request.setAttribute("keyword", keyword); // 공백 or 값있음
+
+        // 검색을 안할때에는 keyword는 null이지만 아무입력 없이 검색버튼만 누르면 공백이 들어간다. -> 쿼리가 달라진다
+        if (keyword.isBlank()) {
+            boardList = boardRepository.findAll(page); // page = 1
+            totalCount = boardRepository.count(); // totalCount = 5
+        } else {
+            boardList = boardRepository.findAll(page, keyword); // page = 1
+            totalCount = boardRepository.count(keyword); // totalCount = 5
+        }
+
         int totalPage = totalCount / 3; // totalPage = 1
         if (totalCount % 3 > 0) {
             totalPage = totalPage + 1; // totalPage = 2
@@ -155,7 +172,7 @@ public class BoardController { // 요청할 때에는 항상 controller로
     // localhost:8080/board/1
     // localhost:8080/board/50
     @GetMapping("/board/{id}")
-    public String detail(@PathVariable Integer id, HttpServletRequest request) { // C
+    public String detail(@PathVariable Integer id, HttpServletRequest request) { // C // PathVariable : 주소에 있는 값 사용한다.
         User sessionUser = (User) session.getAttribute("sessionUser");
         List<BoardDetailDTO> dtos = null;
         if (sessionUser == null) {

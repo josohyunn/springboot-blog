@@ -3,6 +3,7 @@ package shop.mtcoding.blog.repository;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +21,15 @@ public class UserRepository {
     @Autowired
     private EntityManager em;
 
+    String encPassword = null;
+
     public User findByUsername(String username) {
         try {
             Query query = em.createNativeQuery("select * from user_tb where username=:username",
-                    User.class);
+                    User.class); // 매핑을 하는 이유 : return을 해야 하기 때문에
+            // 클래스로 받는 이유 : 반환해야 하는 컬럼 갯수가 1개이면 변수로 해도 되는데, select * 이기 때문에 여러 개의 컬럼을 반환해야
+            // 한다.
+            // 그래서 클래스로 받아서 클래스로 return을 해줘야 한다.
             query.setParameter("username", username);
             return (User) query.getSingleResult();
         } catch (Exception e) {
@@ -37,20 +43,17 @@ public class UserRepository {
                 User.class);
         query.setParameter("username", loginDTO.getUsername());
         query.setParameter("password", loginDTO.getPassword());
+
         return (User) query.getSingleResult();
     }
 
     @Transactional // insert, update, delete 롤백과 커밋 자동으로 해줌
     public void save(JoinDTO joinDTO) {
-        System.out.println("테스트 : " + 1);
         Query query = em.createNativeQuery(
                 "insert into user_tb(username, password, email) values(:username, :password, :email)");
-        System.out.println("테스트 : " + 2);
         query.setParameter("username", joinDTO.getUsername());
         query.setParameter("password", joinDTO.getPassword());
         query.setParameter("email", joinDTO.getEmail());
-        System.out.println("테스트 : " + 3);
         query.executeUpdate(); // 쿼리를 전송(DBMS)
-        System.out.println("테스트 : " + 4);
     }
 }

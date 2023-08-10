@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,11 +62,20 @@ public class UserController {
             return "redirect:/40x";
         }
 
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        System.out.println("테스트1");
         try {
             // 핵심 기능
-            User user = userRepository.findByUsernameAndPassword(loginDTO);
-            session.setAttribute("sessionUser", user);
-            return "redirect:/"; // 로그인 된 페이지
+            // user : DB에 있는 값
+            User user = userRepository.findByUsername(loginDTO.getUsername());
+            boolean isValid = BCrypt.checkpw(loginDTO.getPassword(), user.getPassword());
+            if (isValid) {
+                session.setAttribute("sessionUser", user);
+                return "redirect:/"; // 로그인 된 페이지
+            } else {
+                return "redirect:/loginForm";
+            }
+
         } catch (Exception e) {
 
             return "redirect:/exLogin"; // 아이디 또는 비밀번호 틀렸을 시
@@ -74,7 +84,13 @@ public class UserController {
 
     // 실무
     @PostMapping("/join")
-    public String join(JoinDTO joinDTO) {
+    public String join(JoinDTO joinDTO) { // JoinDTO에 값이 언제 담겼길래 joinDTO.getUsername()등을 할수 있냐?
+        // 클라이언트가 /join을 때리면 view에서 action="/join"인 폼을 찾아 여기 body에 'key=value'형태로 담아서
+        // request에 담아준다.
+        // /join을 때린다고 해서 함수가 실행되진 않지만 Dispatcher Servlet이 자동으로 실행해주고, body에 담긴 key값을
+        // join함수의 매개변수인
+        // JoinDTO의 필드와 매칭시켜줘서 joinDTO에 담기게 된다.
+        // DS가 하는 일은????
 
         // validation check(유효성 검사)
         // 프론트엔드로 접근하는 사람 말고 비정상적인 postman등으로 접근하는 사람을 막기 위해 작성
@@ -94,6 +110,11 @@ public class UserController {
         if (user != null) {
             return "redirect:/50x";
         }
+
+        // JoinDTO로 받은 비밀번호를 BCrypt로 해시 해서 DB에 insert하기
+        String encPassword = BCrypt.hashpw(joinDTO.getPassword(), BCrypt.gensalt());
+        joinDTO.setPassword(encPassword);
+
         userRepository.save(joinDTO); // 핵심 기능
         return "redirect:/loginForm";
 
@@ -155,7 +176,18 @@ public class UserController {
     // localhost:8080/user/updateForm 요청하면
     // user.updateForm 실행됨
     @GetMapping("/user/updateForm") // 얘를 때리는것.(return 때리는거 아님)
-    public String updateForm() {
+    public String updateForm(HttpServletRequest request) {
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "redirect:/loginForm";
+        }
+
+        User user = userRepository.findByUsername(sessionUser.getUsername()); // findByUsername은 pk가 아니니까 풀스캔해서
+        // 느리다.(username은 unique이긴 함)
+        // id는 index이므로 빠르다.
+        // 귀찮으니까 username으로 찾는것
+        request.setAttribute("user", user);
+
         // templates/ -> prefix
         // .mustache -> postfix
         return "user/updateForm"; // ViewResolver -> templates패키지 찾음 -> 실행됨
