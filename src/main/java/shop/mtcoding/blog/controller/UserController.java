@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import shop.mtcoding.blog.dto.JoinDTO;
 import shop.mtcoding.blog.dto.LoginDTO;
+import shop.mtcoding.blog.dto.UpdateDTO;
+import shop.mtcoding.blog.dto.UserUpdateDTO;
+import shop.mtcoding.blog.model.Board;
 import shop.mtcoding.blog.model.User;
 import shop.mtcoding.blog.repository.UserRepository;
 
@@ -191,6 +194,20 @@ public class UserController {
         // templates/ -> prefix
         // .mustache -> postfix
         return "user/updateForm"; // ViewResolver -> templates패키지 찾음 -> 실행됨
+    }
+
+    @PostMapping("/user/update")
+    public String update(UserUpdateDTO userUpdateDTO) {
+        User sessionUser = (User) session.getAttribute("sessionUser");
+
+        if (sessionUser == null) {
+            return "redirect:/loginForm";
+        }
+
+        String encPassword = BCrypt.hashpw(userUpdateDTO.getPassword(), BCrypt.gensalt());
+        userUpdateDTO.setPassword(encPassword);
+        userRepository.update(userUpdateDTO, sessionUser.getId());
+        return "redirect:/";
     }
 
     @GetMapping("/logout")

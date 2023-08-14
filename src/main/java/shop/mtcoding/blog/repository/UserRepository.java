@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import shop.mtcoding.blog.dto.JoinDTO;
 import shop.mtcoding.blog.dto.LoginDTO;
+import shop.mtcoding.blog.dto.UserUpdateDTO;
 import shop.mtcoding.blog.model.User;
 
 // 현재 메모리에 떠있는것
@@ -55,5 +56,14 @@ public class UserRepository {
         query.setParameter("password", joinDTO.getPassword());
         query.setParameter("email", joinDTO.getEmail());
         query.executeUpdate(); // 쿼리를 전송(DBMS)
+    }
+
+    @Transactional
+    public void update(UserUpdateDTO userUpdateDTO, Integer id) {
+        Query query = em.createNativeQuery("update user_tb set password = :password where id = :id");
+        query.setParameter("password", userUpdateDTO.getPassword());
+        query.setParameter("id", id);
+        query.executeUpdate();
+
     }
 }
