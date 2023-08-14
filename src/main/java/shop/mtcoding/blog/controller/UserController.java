@@ -182,7 +182,7 @@ public class UserController {
     public String updateForm(HttpServletRequest request) {
         User sessionUser = (User) session.getAttribute("sessionUser");
         if (sessionUser == null) {
-            return "redirect:/loginForm";
+            return "redirect:/updateForm";
         }
 
         User user = userRepository.findByUsername(sessionUser.getUsername()); // findByUsername은 pk가 아니니까 풀스캔해서
@@ -201,7 +201,7 @@ public class UserController {
         User sessionUser = (User) session.getAttribute("sessionUser");
 
         if (sessionUser == null) {
-            return "redirect:/loginForm";
+            return "redirect:/";
         }
 
         String encPassword = BCrypt.hashpw(userUpdateDTO.getPassword(), BCrypt.gensalt());
